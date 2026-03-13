@@ -8,11 +8,11 @@ export function Navigation() {
     <header>
       <div class="container">
         <div class="nav-container">
-          <!-- Empty spacer for left side -->
-          <div class="flex-1 "></div>
+          <!-- Empty spacer for left side (desktop only) -->
+          <div class="flex-1 hidden md:block"></div>
           
-          <!-- Desktop Navigation Pill (Centered) -->
-          <nav class="pointer-events-auto">
+          <!-- Navigation Pill: full-width centered on mobile, auto on desktop -->
+          <nav class="pointer-events-auto w-full md:w-auto flex justify-center">
             <ul class="nav-pill">
               <li>
                 <a href="/" class="nav-link" title="${i18n('nav-home-title')}">
@@ -56,8 +56,8 @@ export function Navigation() {
             </ul>
           </nav>
 
-          <!-- Theme & Language Toggles (Right side) -->
-          <div class="flex-1 flex justify-end gap-2">
+          <!-- Theme & Language Toggles: second row on mobile, right-aligned on desktop -->
+          <div class="w-full md:w-auto md:flex-1 flex justify-end gap-2 md:pr-14">
 
             <button id="theme-toggle" type="button" aria-label="Toggle theme" 
               class="toggle-btn transition-all hover:ring-2 hover:ring-teal-500/50">

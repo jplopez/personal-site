@@ -75,7 +75,7 @@ body {
 
   header { @apply fixed top-0 z-50 w-full px-2 py-2 bg-primary-bg dark:bg-primary-bg-dark; }
   header .container { @apply mx-auto max-w-2xl }
-  header .nav-container { @apply relative flex items-center justify-between gap-4 }
+  header .nav-container { @apply relative flex flex-wrap items-center gap-1 md:flex-nowrap md:gap-4 }
   
   #app { @apply flex w-full }
   
@@ -108,9 +108,9 @@ body {
 
   /* navigation */
   .nav-pill { @apply 
-    flex px-1 text-sm font-medium bg-white rounded-full shadow-lg md:px-3 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 shadow-zinc-800/5 outline outline-zinc-900/50 dark:outline-white/40 ring-1 ring-zinc-900/5 dark:ring-white/10 hover:ring-zinc-900/50 dark:hover:ring-white/40;
+    flex px-0 text-sm font-medium bg-white rounded-full shadow-lg md:px-3 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 shadow-zinc-800/5 outline outline-zinc-900/50 dark:outline-white/40 ring-1 ring-zinc-900/5 dark:ring-white/10 hover:ring-zinc-900/50 dark:hover:ring-white/40;
   }
-  .nav-link { @apply relative block px-1 py-2 transition md:px-3 hover:text-primary dark:hover:text-primary-dark; }
+  .nav-link { @apply relative block whitespace-nowrap px-1 py-2 transition md:px-3 hover:text-primary dark:hover:text-primary-dark; }
   .toggle-btn { @apply 
     px-2 py-1 transition bg-white rounded-full shadow-lg pointer-events-auto md:py-2 md:px-3 dark:bg-zinc-800 shadow-zinc-800/5 ring-1 ring-zinc-900/5 dark:ring-white/10 hover:ring-zinc-900/10 dark:hover:ring-white/40 outline outline-zinc-900/10 dark:outline-white/40 ;
   }
