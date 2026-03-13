@@ -148,7 +148,11 @@ export const handler = async (event) => {
     };
   }
 
+  // Netlify AI Gateway automatically injects ANTHROPIC_API_KEY and ANTHROPIC_BASE_URL.
+  // Remove any manually-set ANTHROPIC_API_KEY from Netlify env vars to allow the gateway to activate.
   const apiKey = process.env.ANTHROPIC_API_KEY;
+  const baseUrl = process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com';
+
   if (!apiKey) {
     return {
       statusCode: 503,
@@ -161,7 +165,7 @@ export const handler = async (event) => {
 
   let aiResponse;
   try {
-    aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
+    aiResponse = await fetch(`${baseUrl}/v1/messages`, {
       method: 'POST',
       headers: {
         'x-api-key': apiKey,
@@ -169,7 +173,7 @@ export const handler = async (event) => {
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-3-5-haiku-20241022',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 600,
         system: systemPrompt,
         messages: [{ role: 'user', content: prompt.trim() }],
