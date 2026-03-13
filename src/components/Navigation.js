@@ -1,4 +1,5 @@
 import { i18n, getCurrentLanguage, setLanguage } from '../i18n.js'
+import { config } from '../config.js'
 
 export function Navigation() {
   /* html */
@@ -44,7 +45,7 @@ export function Navigation() {
               </li>
               <li class="my-2 mx-1 md:mx-2 border"> </li>
               <li>
-                <a href="/downloads/${i18n('dl-resume')}" download 
+                <a href="/downloads/${config['resume']['filename']}" download 
                     class="nav-link text-accent" title="${i18n('dl-resume-title')}">
                       ${i18n('nav-downloadResume')}
                   <svg class="inline-block w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
