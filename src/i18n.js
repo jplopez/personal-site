@@ -102,30 +102,38 @@ export async function initLanguage() {
   if (debug) console.log("Language initialized: " + lang)
 }
 
+// Pre-register all language-specific component files so Vite bundles them.
+// The glob patterns must be string literals; dynamic paths are looked up at runtime.
+const _langComponentModules = {
+  ...import.meta.glob('./components/**/*-en.js'),
+  ...import.meta.glob('./components/**/*-es.js'),
+}
+
 // Dynamically import a language-specific component
-// Usage: const AboutContent = await importComponent('./components/about-content')
-// Will import: ./components/about-content-en.js or ./components/about-content-es.js
+// Usage: const AboutContent = await importComponent('./components/about/content')
+// Will import: ./components/about/content-en.js or ./components/about/content-es.js
 export async function importComponent(basePath) {
   const lang = getCurrentLanguage()
   const componentPath = `${basePath}-${lang}.js`
-  
-  try {
-    const module = await import(/* @vite-ignore */ componentPath)
+
+  const loader = _langComponentModules[componentPath]
+  if (loader) {
+    const module = await loader()
     return module.default || module
-  } catch (error) {
-    console.error(`Failed to import component: ${componentPath}`, error)
-    // Fallback to English if specific language file doesn't exist
-    if (lang !== 'en') {
-      try {
-        const fallbackPath = `${basePath}-en.js`
-        console.warn(`Falling back to: ${fallbackPath}`)
-        const fallbackModule = await import(/* @vite-ignore */ fallbackPath)
-        return fallbackModule.default || fallbackModule
-      } catch (fallbackError) {
-        console.error(`Fallback also failed: ${basePath}-en.js`, fallbackError)
-        throw fallbackError
-      }
-    }
-    throw error
   }
+
+  console.error(`Failed to import component: ${componentPath}`)
+
+  // Fallback to English if specific language file doesn't exist
+  if (lang !== 'en') {
+    const fallbackPath = `${basePath}-en.js`
+    const fallbackLoader = _langComponentModules[fallbackPath]
+    if (fallbackLoader) {
+      console.warn(`Falling back to: ${fallbackPath}`)
+      const fallbackModule = await fallbackLoader()
+      return fallbackModule.default || fallbackModule
+    }
+  }
+
+  throw new Error(`Component not found: ${componentPath}`)
 }
