@@ -22,7 +22,7 @@ export const config = {
   // Resume
   resume: {
     path: "downloads",
-    filename: "JuanPabloLopez_Resume.pdf"
+    filename: "JuanPabloLopez.pdf"
   },
 
   // Contact Form
