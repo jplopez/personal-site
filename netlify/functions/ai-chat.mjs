@@ -1,8 +1,10 @@
 /**
- * Serverless proxy for the Anthropic Claude API.
- * Set ANTHROPIC_API_KEY in Netlify environment variables.
+ * AI chat function using Netlify AI Gateway + Anthropic Claude.
+ * No API keys needed — the gateway injects ANTHROPIC_API_KEY and ANTHROPIC_BASE_URL.
+ * Locally: run `netlify dev` (not `npm run dev`) to get gateway vars injected.
  * Deployed at: /.netlify/functions/ai-chat
  */
+import Anthropic from '@anthropic-ai/sdk';
 
 const SYSTEM_PROMPT_EN = `You are an AI assistant embedded in Juan Pablo Lopez's personal portfolio website. \
 Your role is to help visitors understand Juan Pablo's professional background, skills, achievements, and experience.
@@ -148,59 +150,41 @@ export const handler = async (event) => {
     };
   }
 
-  // Netlify AI Gateway automatically injects ANTHROPIC_API_KEY and ANTHROPIC_BASE_URL.
-  // Remove any manually-set ANTHROPIC_API_KEY from Netlify env vars to allow the gateway to activate.
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  const baseUrl = process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com';
-
-  if (!apiKey) {
+  // Netlify AI Gateway injects ANTHROPIC_API_KEY + ANTHROPIC_BASE_URL automatically.
+  // If neither is present the gateway hasn't activated — ensure a prod deploy exists
+  // and that you haven't manually set ANTHROPIC_API_KEY in Netlify env vars
+  // (manual keys block gateway injection).
+  if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_BASE_URL) {
     return {
       statusCode: 503,
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ error: 'Service not configured' }),
+      body: JSON.stringify({ error: 'AI Gateway not configured' }),
     };
   }
 
   const systemPrompt = language === 'es' ? SYSTEM_PROMPT_ES : SYSTEM_PROMPT_EN;
 
-  let aiResponse;
   try {
-    aiResponse = await fetch(`${baseUrl}/v1/messages`, {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 600,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: prompt.trim() }],
-      }),
+    // new Anthropic() automatically reads ANTHROPIC_API_KEY and ANTHROPIC_BASE_URL
+    const anthropic = new Anthropic();
+    const message = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 600,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: prompt.trim() }],
     });
-  } catch {
-    return {
-      statusCode: 502,
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ error: 'Failed to reach AI service' }),
-    };
-  }
 
-  if (!aiResponse.ok) {
+    const text = message.content?.[0]?.text ?? '';
+    return {
+      statusCode: 200,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ text }),
+    };
+  } catch {
     return {
       statusCode: 502,
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ error: 'AI service error' }),
     };
   }
-
-  const data = await aiResponse.json();
-  const text = data.content?.[0]?.text ?? '';
-
-  return {
-    statusCode: 200,
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ text }),
-  };
 };
