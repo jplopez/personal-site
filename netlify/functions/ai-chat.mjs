@@ -126,46 +126,29 @@ Banco de Chile / El Mercurio / I2B (2009–2015) – Lead Developer
 - Lead Developer en empresas chilenas de banca (Banco de Chile), medios (El Mercurio) y tecnología (I2B)
 `;
 
-export const handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+// v2 Netlify Function — uses standard Web Request/Response APIs.
+// The AI Gateway injects ANTHROPIC_API_KEY + ANTHROPIC_BASE_URL into this context.
+export default async (request) => {
+  if (request.method !== 'POST') {
+    return new Response('Method Not Allowed', { status: 405 });
   }
 
   let prompt, language;
   try {
-    ({ prompt, language } = JSON.parse(event.body));
+    ({ prompt, language } = await request.json());
   } catch {
-    return {
-      statusCode: 400,
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ error: 'Invalid request body' }),
-    };
+    return Response.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
   if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0 || prompt.length > 5000) {
-    return {
-      statusCode: 400,
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ error: 'Invalid prompt' }),
-    };
-  }
-
-  // Netlify AI Gateway injects ANTHROPIC_API_KEY + ANTHROPIC_BASE_URL automatically.
-  // If neither is present the gateway hasn't activated — ensure a prod deploy exists
-  // and that you haven't manually set ANTHROPIC_API_KEY in Netlify env vars
-  // (manual keys block gateway injection).
-  if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_BASE_URL) {
-    return {
-      statusCode: 503,
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ error: 'AI Gateway not configured' }),
-    };
+    return Response.json({ error: 'Invalid prompt' }, { status: 400 });
   }
 
   const systemPrompt = language === 'es' ? SYSTEM_PROMPT_ES : SYSTEM_PROMPT_EN;
 
   try {
-    // new Anthropic() automatically reads ANTHROPIC_API_KEY and ANTHROPIC_BASE_URL
+    // new Anthropic() reads ANTHROPIC_API_KEY and ANTHROPIC_BASE_URL automatically.
+    // Both are injected by Netlify AI Gateway — no manual key management needed.
     const anthropic = new Anthropic();
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -175,16 +158,13 @@ export const handler = async (event) => {
     });
 
     const text = message.content?.[0]?.text ?? '';
-    return {
-      statusCode: 200,
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ text }),
-    };
-  } catch {
-    return {
-      statusCode: 502,
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ error: 'AI service error' }),
-    };
+    return Response.json({ text });
+  } catch (err) {
+    const error = err instanceof Error ? err.message : String(err);
+    return Response.json({ error }, { status: 502 });
   }
+};
+
+export const config = {
+  path: '/.netlify/functions/ai-chat',
 };
