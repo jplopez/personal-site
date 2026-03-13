@@ -17,48 +17,48 @@ body {
 @theme {
 
   /* background and text colors */
-  --color-primary-bg: theme('color-gray-50');
-  --color-primary-bg-dark: theme('color-zinc-950');
-  --color-primary-txt: theme('color-zinc-800');
-  --color-primary-txt-dark: theme('color-zinc-200');
+  --color-primary-bg: var(--color-gray-50);
+  --color-primary-bg-dark: var(--color-zinc-950);
+  --color-primary-txt: var(--color-zinc-800);
+  --color-primary-txt-dark: var(--color-zinc-200);
 
-  --color-primary-txt-off: theme('color-zinc-900/60');
-  --color-primary-txt-off-dark: theme('color-zinc-100/60');
+  --color-primary-txt-off: color-mix(in srgb, var(--color-zinc-900) 60%, transparent);
+  --color-primary-txt-off-dark: color-mix(in srgb, var(--color-zinc-100) 60%, transparent);
 
   /* Primary colors - reference existing teal shades */
-  --color-primary: theme('color-teal-500');
-  --color-primary-dark: theme('color-teal-400');
+  --color-primary: var(--color-teal-500);
+  --color-primary-dark: var(--color-teal-400);
   
   /* Secondary colors */
-  --color-secondary: theme('color-orange-500');
-  --color-secondary-dark: theme('color-orange-400');
+  --color-secondary: var(--color-orange-500);
+  --color-secondary-dark: var(--color-orange-400);
   
   /* Accent color */
-  --color-accent: theme('color-rose-500');
-  --color-accent-dark: theme('color-rose-400');
+  --color-accent: var(--color-rose-500);
+  --color-accent-dark: var(--color-rose-400);
 
   /* neutral - light:white, dark:zinc-950 */
-  --color-neutral: theme('color-white');
-  --color-contrast: theme('color-zinc-900');
-  --color-neutral-dark: theme('color-zinc-950');
-  --color-contrast-dark: theme('color-gray-50');
+  --color-neutral: var(--color-white);
+  --color-contrast: var(--color-zinc-900);
+  --color-neutral-dark: var(--color-zinc-950);
+  --color-contrast-dark: var(--color-gray-50);
 
 
   /* pale for off or disabled elements */
   /* Primary colors - reference existing teal shades */
-  --color-primary-pale: theme('color-teal-500/70');
-  --color-primary-dark-pale: theme('color-teal-400/70');
+  --color-primary-pale: color-mix(in srgb, var(--color-teal-500) 70%, transparent);
+  --color-primary-dark-pale: color-mix(in srgb, var(--color-teal-400) 70%, transparent);
   
   /* Secondary colors */
-  --color-secondary-pale: theme('color-orange-500/70');
-  --color-secondary-pale-dark: theme('color-orange-400/70');
+  --color-secondary-pale: color-mix(in srgb, var(--color-orange-500) 70%, transparent);
+  --color-secondary-pale-dark: color-mix(in srgb, var(--color-orange-400) 70%, transparent);
   
   /* Accent color */
-  --color-accent-pale: theme('color-rose-900');
-  --color-accent-pale-dark: theme('color-rose-800');
+  --color-accent-pale: var(--color-rose-900);
+  --color-accent-pale-dark: var(--color-rose-800);
 
-  --color-card-activated: theme('color-teal-500');
-  --color-card-inactive: theme('color-teal-500/0');
+  --color-card-activated: var(--color-teal-500);
+  --color-card-inactive: transparent
 }
 
 
