@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" class="h-full antialiased dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="/src/style.css" rel="stylesheet" />
+    <title>Juan Pablo Lopez - Software & Game Developer</title>
+    <meta name="description" content="Software and Game Developer specializing in full-stack development and indie games">
+    <script>
+      // Initialize theme before page renders to avoid flash
+      if (localStorage.theme === 'light' || (!('theme' in localStorage) && globalThis.matchMedia('(prefers-color-scheme: light)').matches)) {
+        document.documentElement.classList.remove('dark')
+        document.documentElement.style.colorScheme = 'light'
+      } else {
+        document.documentElement.classList.add('dark')
+        document.documentElement.style.colorScheme = 'dark'
+      }
+      
+      // Initialize language
+      const savedLang = localStorage.getItem('language') || 'en'
+      document.documentElement.setAttribute('lang', savedLang)
+      
+      // Initialize text size
+      const textSizes = { small: 0.875, normal: 1, large: 1.25 }
+      const savedSize = localStorage.getItem('textSize') || 'normal'
+      const multiplier = textSizes[savedSize] || textSizes.normal
+      document.documentElement.style.setProperty('--text-size-multiplier', multiplier)
+    </script>
+  </head>
+  <body>
+    <div id="app" >
+      <script type="module" src="/src/main.js"></script>
+    </div>
+  </body>
+</html>

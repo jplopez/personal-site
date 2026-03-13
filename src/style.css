@@ -1,0 +1,380 @@
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap');
+@import "tailwindcss";
+
+/* Override for dark variant to enable theme toggle */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Text size accessibility feature */
+:root {
+  --text-size-multiplier: 1;
+}
+
+/* Apply text size multiplier to all text elements */
+body {
+  font-size: calc(1rem * var(--text-size-multiplier));
+}
+
+@theme {
+
+  /* background and text colors */
+  --color-primary-bg: theme(--color-gray-50);
+  --color-primary-bg-dark: theme(--color-zinc-950);
+  --color-primary-txt: theme(--color-zinc-800);
+  --color-primary-txt-dark: theme(--color-zinc-200);
+
+  --color-primary-txt-off: theme(--color-zinc-900/60);
+  --color-primary-txt-off-dark: theme(--color-zinc-100/60);
+
+  /* Primary colors - reference existing teal shades */
+  --color-primary: theme(--color-teal-500);
+  --color-primary-dark: theme(--color-teal-400);
+  
+  /* Secondary colors */
+  --color-secondary: theme(--color-orange-500);
+  --color-secondary-dark: theme(--color-orange-400);
+  
+  /* Accent color */
+  --color-accent: theme(--color-rose-500);
+  --color-accent-dark: theme(--color-rose-400);
+
+  /* neutral - light:white, dark:zinc-950 */
+  --color-neutral: theme(--color-white);
+  --color-contrast: theme(--color-zinc-900);
+  --color-neutral-dark: theme(--color-zinc-950);
+  --color-contrast-dark: theme(--color-gray-50);
+
+
+  /* pale for off or disabled elements */
+  /* Primary colors - reference existing teal shades */
+  --color-primary-pale: theme(--color-teal-500/70);
+  --color-primary-dark-pale: theme(--color-teal-400/70);
+  
+  /* Secondary colors */
+  --color-secondary-pale: theme(--color-orange-500/70);
+  --color-secondary-pale-dark: theme(--color-orange-400/70);
+  
+  /* Accent color */
+  --color-accent-pale: theme(--color-rose-900);
+  --color-accent-pale-dark: theme(--color-rose-800);
+
+  --color-card-activated: theme(--color-teal-500);
+  --color-card-inactive: theme(--color-teal-500/0)
+}
+
+
+
+/* Navigation Component Styles */
+@layer components {
+
+  /* HTML elements */
+  body {@apply flex h-full antialiased font-normal md:subpixel-antialiased bg-primary-bg dark:bg-primary-bg-dark text-primary-txt dark:text-primary-txt-dark ;  }
+  
+  h1 { @apply text-4xl font-bold tracking-tight sm:text-5xl text-stone-900 dark:text-stone-300 ;  }
+  h2 { @apply text-2xl font-bold tracking-tight sm:text-3xl text-stone-900 dark:text-stone-300;  }
+  h3 { @apply text-2xl font-bold mb-4 text-stone-900 dark:text-stone-200 }
+
+  header { @apply fixed top-0 z-50 w-full px-2 py-2 bg-primary-bg dark:bg-primary-bg-dark; }
+  header .container { @apply mx-auto max-w-2xl }
+  header .nav-container { @apply relative flex items-center justify-between gap-4 }
+  
+  #app { @apply flex w-full }
+  
+  section { @apply container max-w-2xl px-2 py-4 pt-8 mx-auto lg:max-w-5xl sm:px-4 lg:px-8 sm:py-6; }
+  section h2 { @apply text-4xl md:text-5xl font-bold text-center mb-4 text-stone-800 dark:text-stone-300 }
+  section p.subtitle { @apply text-xl text-stone-700 dark:text-stone-200 text-center mb-12 max-w-2xl mx-auto }
+  
+  footer { @apply container px-4 py-12 mx-auto border-t border-zinc-200 dark:border-zinc-800; }
+  footer .footer-section h4 { @apply mb-4 text-lg font-bold text-zinc-900 dark:text-white;}
+  footer .social-link { @apply transition-colors text-zinc-600 dark:text-gray-400 hover:text-teal-500 dark:hover:text-teal-400; }
+  
+  footer .download-btn { @apply inline-flex items-center px-4 py-2 font-medium transition-colors rounded-lg text-primary bg-zinc-900/10 dark:bg-white/10 hover:bg-zinc-900/20 dark:hover:bg-white/20; }
+  
+  /* Custom Styles */ 
+
+  /* Home */
+  .hero-title { @apply mt-4 text-2xl font-semibold text-stone-800 dark:text-stone-200; }
+  .hero-description { @apply mt-6 text-base leading-7 lg:leading-8 text-stone-800 dark:text-stone-200; }
+  #home .links { @apply flex flex-wrap justify-center items-center mt-6 gap-6  }
+  #home .link-item { @apply  -m-1 p-1 }
+  
+  
+  /* social icons */
+  .social-svg {
+    @apply w-6 h-6 transition fill-slate-500 group-hover:fill-slate-700 dark:fill-slate-200 dark:group-hover:fill-slate-400;
+  }
+  
+
+
+
+  /* navigation */
+  .nav-pill { @apply 
+    flex px-1 text-sm font-medium bg-white rounded-full shadow-lg md:px-3 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 shadow-zinc-800/5 outline outline-zinc-900/50 dark:outline-white/40 ring-1 ring-zinc-900/5 dark:ring-white/10 hover:ring-zinc-900/50 dark:hover:ring-white/40;
+  }
+  .nav-link { @apply relative block px-1 py-2 transition md:px-3 hover:text-primary dark:hover:text-primary-dark; }
+  .toggle-btn { @apply 
+    px-2 py-1 transition bg-white rounded-full shadow-lg pointer-events-auto md:py-2 md:px-3 dark:bg-zinc-800 shadow-zinc-800/5 ring-1 ring-zinc-900/5 dark:ring-white/10 hover:ring-zinc-900/10 dark:hover:ring-white/40 outline outline-zinc-900/10 dark:outline-white/40 ;
+  }
+  .mobile-menu-link {
+    @apply block px-3 py-2 text-base font-medium transition rounded-md text-zinc-800 dark:text-zinc-200 hover:text-teal-500 dark:hover:text-teal-400 hover:bg-zinc-100 dark:hover:bg-zinc-700/50;
+  }
+
+  /* Horizontal Line */
+  .horizontal-line { @apply pt-16 border-t-2 border-zinc-300 dark:border-zinc-700; }
+ 
+
+  /* Content */
+  .style-paragraph {
+    @apply mt-6 text-sm leading-6 lg:text-base sm:leading-relaxed space-y-7 text-primary-txt dark:text-primary-txt-dark;
+  }
+
+
+  /* Sections and Subsections */
+  .section  { @apply max-w-2xl px-2 py-8 mx-auto lg:max-w-5xl sm:px-4 lg:px-8 sm:py-12; }
+  .section-container {@apply border-t border-zinc-100 dark:border-zinc-800 pt-16 }
+  .section h2 { @apply text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-3xl }
+  .section-title  { @apply text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-3xl }
+  .section-subtitle { @apply mt-6 text-base text-zinc-600 dark:text-zinc-400 } 
+  .section-ul { @apply grid grid-cols-1 gap-x-12 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 mt-16 }
+  .section-li { @apply relative flex flex-col items-start }
+  .section-item-title { @apply mt-2 text-sm text-zinc-600 dark:text-zinc-400 }
+  .section-item { @apply mt-2 text-sm text-zinc-600 dark:text-zinc-400 }
+
+  .subsection { @apply max-w-4xl px-2 py-8 mx-auto lg:max-w-5xl sm:px-4 lg:px-8 sm:py-12 }
+
+  /* Experience and Skills */
+  #workExperience .container { @apply grid grid-cols-1 gap-6 mt-6 lg:grid-cols-2;}
+  #workExperience .detail-panel { @apply hidden lg:block; }
+  #workExperience .mobile-detail-panel { @apply overflow-hidden transition-all duration-300 lg:hidden; }
+  #workExperience .mobile-detail-panel-container { @apply p-4 mt-2 bg-gray-200 rounded-lg dark:bg-zinc-800 backdrop-blur-lg; }
+  #workExperience .experience-item .experience-card { @apply w-full p-4 text-left transition-colors bg-gray-200 border-2 border-transparent rounded-lg dark:bg-zinc-800 backdrop-blur-lg hover:bg-zinc-100/50 dark:hover:bg-white/20 hover:border-zinc-400 dark:hover:border-card-activated; }
+  #workExperience .experience-item .company { @apply relative flex items-center justify-center flex-none w-10 h-10 mt-1 bg-white rounded-full shadow-md shadow-zinc-800/5 ring-1 ring-zinc-900/5 dark:ring-zinc-800 dark:bg-zinc-800;}
+  #workExperience .experience-item .roleName { @apply text-sm font-medium text-zinc-900 dark:text-zinc-100;}
+  #workExperience .experience-item .companyName { @apply text-xs text-zinc-500 dark:text-zinc-500;}
+  #workExperience .experience-item .dates { @apply mt-1 text-xs text-zinc-400 dark:text-zinc-400;}
+  /* Experience item details  */
+  #workExperience .detail-panel-container { @apply p-4 bg-gray-200 rounded-lg md:p-6 sm:mt-2 md:mt-0 md:h-full dark:bg-zinc-800 backdrop-blur-lg; }
+
+  #workExperience .detail-panel-container .role { @apply text-lg font-bold mb-3}
+  #workExperience .detail-panel-container .company { @apply text-sm text-zinc-600 dark:text-zinc-400 mb-4}
+  #workExperience .detail-panel-container .content { @apply space-y-3 text-sm }
+
+
+  .experience-mobile-detail.closed { @apply mt-0 opacity-0 max-h-0;}
+  
+  .experience-mobile-detail.opened { 
+    @apply mt-2 opacity-100;
+    max-height: 2000px;
+  }
+
+
+  /* Career Timeline */
+  .career-highlights { @apply flex flex-col gap-4 mt-6; }
+
+  .highlight-item {
+    @apply opacity-0;
+    transform: translateY(1.25rem);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .highlight-item.revealed {
+    @apply opacity-100;
+    transform: translateY(0);
+  }
+
+  .highlight-item .achievement-card {
+    @apply opacity-100;
+    transform: none;
+    transition: none;
+  }
+
+  .career-timeline { @apply relative pl-6 mt-8 space-y-12 border-l-2 border-teal-400/40 dark:border-teal-600/40; }
+
+  .career-item {
+    @apply relative opacity-0;
+    transform: translateY(1.5rem);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+
+  .career-item.revealed {
+    @apply opacity-100;
+    transform: translateY(0);
+  }
+
+  .career-dot { @apply absolute -left-[2.15rem] top-1.5 w-4 h-4 rounded-full bg-teal-400 dark:bg-teal-500 ring-4 ring-primary-bg dark:ring-primary-bg-dark; }
+  .career-content { @apply pl-2; }
+  .career-header { @apply flex flex-wrap items-baseline gap-x-3 gap-y-1; }
+  .career-company { @apply text-base font-bold text-zinc-900 dark:text-zinc-100; }
+  .career-years { @apply text-xs text-zinc-400 dark:text-zinc-500; }
+  .career-role { @apply mt-0.5 text-sm text-teal-600 dark:text-teal-400 font-medium; }
+
+  .career-achievements { @apply grid gap-3 mt-4; }
+
+  .achievement-card {
+    @apply p-4 text-sm opacity-0 rounded-xl;
+    transform: translateY(0.75rem);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+  }
+  .career-item.revealed .achievement-card {
+    @apply opacity-100;
+    transform: translateY(0);
+  }
+
+  .achievement-text  { @apply border bg-slate-100 dark:bg-white/5 border-zinc-200 dark:border-zinc-700; }
+  .achievement-title { @apply mb-1 text-lg font-semibold text-zinc-800 dark:text-zinc-200; }
+  .achievement-body  { @apply text-base leading-relaxed text-zinc-600 dark:text-zinc-300; }
+
+  .achievement-stat  { @apply flex flex-col items-center justify-center text-center border bg-slate-100 dark:bg-white/5 border-zinc-200 dark:border-zinc-700; }
+  .achievement-value { @apply text-3xl font-bold text-teal-600 dark:text-teal-400; }
+  .achievement-label { @apply mt-1 text-base text-zinc-600 dark:text-zinc-300; }
+
+  .achievement-badge { @apply flex items-center justify-center text-base font-medium text-center text-orange-700 border border-orange-200 bg-orange-50 dark:bg-orange-950/30 dark:border-orange-800 dark:text-orange-300; }
+
+  .achievement-link  { @apply flex items-center text-teal-600 border bg-slate-100 dark:bg-white/5 border-zinc-200 dark:border-zinc-700 dark:text-teal-400 underline-offset-2 hover:underline; }
+
+  /* Portfolio */
+  #portfolio .container { @apply max-w-6xl mx-auto }
+  #portfolio .cards { @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8}
+
+  /* Contact */
+  #contact { @apply mx-auto max-w-2xl lg:max-w-5xl px-4 sm:px-8 lg:px-16 py-16 sm:py-24 }
+  #contact .container { @apply border rounded-2xl border-zinc-300 dark:border-zinc-800 p-6 }
+  #contact .form-container { @apply mt-6 }
+
+  /* Contact form */
+  .contact-form { @apply flex flex-col gap-5 }
+
+  .form-field { @apply flex flex-col gap-1 }
+  .form-field label { @apply text-sm font-medium text-primary-txt dark:text-primary-txt-dark }
+
+  .form-field input,
+  .form-field textarea {
+    @apply w-full rounded-lg border border-zinc-300 dark:border-zinc-700
+           bg-white dark:bg-zinc-900
+           px-4 py-2.5 text-sm
+           text-primary-txt dark:text-primary-txt-dark
+           placeholder:text-zinc-400 dark:placeholder:text-zinc-500
+           outline-none transition
+           focus:border-primary focus:ring-2 focus:ring-primary/30;
+  }
+  .form-field textarea { @apply resize-y min-h-32 }
+
+  .form-field input.invalid,
+  .form-field textarea.invalid {
+    @apply border-red-500 focus:border-red-500 focus:ring-red-500/30;
+  }
+
+  .field-error {
+    @apply hidden text-xs text-red-500 dark:text-red-400;
+  }
+  .field-error.visible { @apply block }
+
+  .form-status {
+    @apply hidden text-sm rounded-lg px-4 py-2.5;
+  }
+  .form-status.info    { @apply block text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/40 }
+  .form-status.success { @apply block text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/40 }
+  .form-status.error   { @apply block text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/40 }
+
+  .contact-submit-btn {
+    @apply self-start rounded-lg px-6 py-2.5 text-sm font-semibold
+           bg-primary text-white cursor-pointer
+           transition hover:bg-teal-600 active:scale-95
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* ─── AI Response Panels (shared) ─────────────────────────────── */
+
+  .ai-section-panel {
+    @apply px-6 py-5 mt-6 text-sm border rounded-xl border-teal-300/60 dark:border-teal-700/60 bg-teal-50/80 dark:bg-teal-950/30 text-zinc-700 dark:text-zinc-300 backdrop-blur-sm;
+    animation: ai-panel-in 0.25s ease;
+  }
+  @keyframes ai-panel-in {
+    from { opacity: 0; transform: translateY(0.5rem); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .ai-panel-heading {
+    @apply mb-3 text-base font-semibold text-teal-700 dark:text-teal-300;
+  }
+  .ai-panel-heading em { @apply not-italic; }
+
+  .ai-panel-content { @apply space-y-3 leading-relaxed; }
+  .ai-panel-content p { @apply text-zinc-700 dark:text-zinc-300; }
+  .ai-panel-content strong { @apply font-semibold text-zinc-800 dark:text-zinc-200; }
+
+  .ai-response-heading {
+    @apply mt-4 mb-1 text-sm font-semibold tracking-wide text-teal-600 uppercase dark:text-teal-400;
+  }
+  .ai-response-list {
+    @apply pl-5 space-y-1 list-disc text-zinc-700 dark:text-zinc-300;
+  }
+
+  .ai-panel-loading {
+    @apply flex items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400;
+  }
+  .ai-panel-spinner {
+    @apply inline-block w-4 h-4 border-2 rounded-full border-teal-400/30 border-t-teal-500;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .ai-panel-error {
+    @apply text-sm text-red-600 dark:text-red-400;
+  }
+
+  /* ─── Skill tag selected state ──────────────────────────────────── */
+
+  .skill-tag--selected {
+    @apply font-semibold text-teal-600 dark:text-teal-400;
+  }
+  .skill-tag--selected::after {
+    content: '';
+    @apply absolute bottom-0 left-0 right-0 h-0.5 bg-teal-500 dark:bg-teal-400 rounded-full;
+  }
+
+  /* ─── Achievement card interactive state ────────────────────────── */
+
+  .achievement-card--clickable {
+    @apply transition-all duration-200 cursor-pointer select-none hover:ring-2 hover:ring-teal-400/60 hover:shadow-md;
+  }
+  .achievement-card--active {
+    @apply shadow-md ring-2 ring-teal-500 dark:ring-teal-400 shadow-teal-500/10;
+  }
+
+  /* ─── Job Fit Assessment page ───────────────────────────────────── */
+
+  #jobfit { @apply max-w-2xl px-4 py-16 mx-auto lg:max-w-5xl sm:px-8 lg:px-16 sm:py-24; }
+
+  .jobfit-form {
+    @apply flex flex-col gap-4 mt-8;
+  }
+
+  .jobfit-textarea {
+    @apply w-full px-4 py-3 text-sm leading-relaxed transition bg-white border outline-none resize-y rounded-xl border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-primary-txt dark:text-primary-txt-dark placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-primary focus:ring-2 focus:ring-primary/30;
+    min-height: 14rem;
+  }
+
+  .jobfit-submit-btn {
+    @apply self-start rounded-lg px-6 py-2.5 text-sm font-semibold
+           bg-primary text-white cursor-pointer
+           transition hover:bg-teal-600 active:scale-95
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .jobfit-result {
+    @apply flex flex-col gap-5 mt-8;
+  }
+
+  .jobfit-indicator {
+    @apply self-start rounded-full px-5 py-1.5 text-sm font-bold tracking-wide uppercase;
+  }
+  .jobfit-indicator--high   { @apply text-green-800 bg-green-100 dark:bg-green-900/40 dark:text-green-300; }
+  .jobfit-indicator--medium { @apply text-yellow-800 bg-yellow-100 dark:bg-yellow-900/40 dark:text-yellow-300; }
+  .jobfit-indicator--low    { @apply text-red-800 bg-red-100 dark:bg-red-900/40 dark:text-red-300; }
+  .jobfit-indicator--error  { @apply hidden; }
+
+  .jobfit-response {
+    @apply px-6 py-5 border rounded-xl border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/60;
+  }
+}
