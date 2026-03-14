@@ -166,5 +166,5 @@ export default async (request) => {
 };
 
 export const config = {
-  path: '/.netlify/functions/ai-chat',
+  path: '/api/ai-chat',
 };

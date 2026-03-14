@@ -1,12 +1,13 @@
 import { getCurrentLanguage } from './i18n.js';
-
+import { config } from './config.js'
 /**
  * Sends a prompt to the AI serverless function and returns the response text.
  * @param {string} userPrompt
  * @returns {Promise<string>}
  */
 export async function askAI(userPrompt) {
-  const response = await fetch('/.netlify/functions/ai-chat', {
+  let path = config['api']['aipath'] ;
+  const response = await fetch(path, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({

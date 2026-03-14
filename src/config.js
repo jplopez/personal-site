@@ -38,5 +38,9 @@ export const config = {
     { label: "Projects", href: "/projects" },
     { label: "Portfolio", href: "/portfolio" },
     { label: "Contact", href: "/contact" }
-  ]
+  ],
+
+  api: {
+    aipath: '/api/ai-chat'
+  }
 }
