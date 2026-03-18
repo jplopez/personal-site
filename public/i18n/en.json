@@ -34,6 +34,7 @@
     "hero-greeting":  "Hi, I\u0027m",
     "hero-title":  "Technical Leader and Video Game Creator",
     "jobfit-analyzing":  "Analyzing...",
+    "jobfit-char-hint": "Long descriptions will be truncated to {{max}} characters before analysis.",
     "jobfit-error":  "Analysis failed. Please try again.",
     "jobfit-high":  "Strong Match",
     "jobfit-low":  "Low Match",

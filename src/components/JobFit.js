@@ -4,6 +4,7 @@ import { askAI, renderAIResponse } from '../ai.js'
 // Localized intro for about section
 const JobFitText = await importComponent('./components/jobfit/content')
 
+const MAX_CHARS = 4800;
 
 export function JobFit() {
   /* html */
@@ -13,34 +14,51 @@ export function JobFit() {
       <div class="style-paragraph max-w-prose mx-auto mt-2"> ${JobFitText()} </div>
 
       <div class="jobfit-form">
-        <textarea
-          id="jobfit-input"
-          class="jobfit-textarea"
-          placeholder="${i18n('jobfit-placeholder')}"
-          rows="10"
-          spellcheck="false"
-        ></textarea>
+        <div class="relative">
+          <textarea
+            id="jobfit-input"
+            class="jobfit-textarea"
+            placeholder="${i18n('jobfit-placeholder')}"
+            rows="10"
+            spellcheck="false"
+          ></textarea>
+          <div id="jobfit-char-counter" class="flex items-center justify-between mt-1.5 text-xs text-zinc-400 dark:text-zinc-500">
+            <span id="jobfit-char-hint" class="hidden text-amber-600 dark:text-amber-400">
+              ${i18n('jobfit-char-hint').replace('{{max}}', MAX_CHARS.toLocaleString())}
+            </span>
+            <span class="ml-auto" id="jobfit-char-count">0 / ${MAX_CHARS.toLocaleString()}</span>
+          </div>
+        </div>
         <button id="jobfit-submit" class="jobfit-submit-btn">
           ${i18n('jobfit-submit')}
         </button>
       </div>
-
-      <div id="jobfit-result" class="jobfit-result hidden">
-        <div id="jobfit-indicator" class="jobfit-indicator"></div>
-        <div id="jobfit-response" class="jobfit-response ai-panel-content"></div>
-      </div>
+      ...
     </section>
   `
 }
 
+
 export function initializeJobFit() {
-  const submitBtn  = document.getElementById('jobfit-submit')
+    const submitBtn  = document.getElementById('jobfit-submit')
   const input      = document.getElementById('jobfit-input')
   const result     = document.getElementById('jobfit-result')
   const indicator  = document.getElementById('jobfit-indicator')
   const responseEl = document.getElementById('jobfit-response')
+  const charCount  = document.getElementById('jobfit-char-count')
+  const charHint   = document.getElementById('jobfit-char-hint')
 
   if (!submitBtn || !input) return
+
+  input.addEventListener('input', () => {
+    const len = input.value.length
+    charCount.textContent = `${len.toLocaleString()} / ${MAX_CHARS.toLocaleString()}`
+    const over = len > MAX_CHARS
+    charCount.classList.toggle('text-amber-600', over)
+    charCount.classList.toggle('dark:text-amber-400', over)
+    charHint.classList.toggle('hidden', !over)
+  })
+  
 
   submitBtn.addEventListener('click', () => runJobFitAnalysis({
     submitBtn, input, result, indicator, responseEl
