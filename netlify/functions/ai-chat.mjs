@@ -1,10 +1,9 @@
 /**
- * AI chat function using Netlify AI Gateway + Anthropic Claude.
- * No API keys needed — the gateway injects ANTHROPIC_API_KEY and ANTHROPIC_BASE_URL.
+ * AI chat function using Netlify AI Gateway + OpenAI.
  * Locally: run `netlify dev` (not `npm run dev`) to get gateway vars injected.
  * Deployed at: /.netlify/functions/ai-chat
  */
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
 const SYSTEM_PROMPT_EN = `You are an AI assistant embedded in Juan Pablo Lopez's personal portfolio website. \
 Your role is to help visitors understand Juan Pablo's professional background, skills, achievements, and experience.
@@ -23,16 +22,13 @@ Location: Seattle, Washington, USA
 Title:    Software & Game Developer
 Bio:      Juan Pablo is a software and game developer based in Seattle. He builds innovative
           applications, creates immersive games, and loves solving complex problems with elegant solutions.
-
 SKILLS:
 Technical:          Software Development, Game Development, Digital Music, AR/VR,
                     Real-time Systems Program Management, Scalability, Reliability Engineering,
                     Distributed Systems, SOA, Performance Optimization
 Leadership/Creative: Roadmaps, KPIs, Cross Functional Leadership, Technical Mentorship,
                      Creative Production, Game Design, Music Recording, Drumming
-
 CAREER HISTORY:
-
 Ameba Games Studio (2024–present) – Founder
 - Founded an indie game studio to create memorable, craft-driven experiences unconstrained by genre or platform
 - Shipped 3 mini-games in the first 6 months
@@ -147,22 +143,24 @@ export default async (request) => {
   const systemPrompt = language === 'es' ? SYSTEM_PROMPT_ES : SYSTEM_PROMPT_EN;
 
   try {
-    // new Anthropic() reads ANTHROPIC_API_KEY and ANTHROPIC_BASE_URL automatically.
+    // new OpenAI() reads OPENAI_API_KEY + OPENAI_BASE_URL from env
     // Both are injected by Netlify AI Gateway (production) and the Netlify Vite plugin (local dev).
     // Run locally with `npm run dev` — the Vite plugin handles gateway routing correctly.
-    const anthropic = new Anthropic();
-    const message = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+    const openai = new OpenAI();
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
       max_tokens: 600,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: prompt.trim() }],
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: prompt.trim() },
+      ],
     });
+    const text = completion.choices?.[0]?.message?.content ?? '';
 
-    const text = message.content?.[0]?.text ?? '';
     return Response.json({ text });
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
-    console.error('[ai-chat] Anthropic SDK error:', error);
+    console.error('[ai-chat] OpenAI SDK error:', error);
     return Response.json({ error }, { status: 502 });
   }
 };
