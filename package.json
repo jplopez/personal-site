@@ -22,6 +22,7 @@
     "vite": "^7.2.2"
   },
   "dependencies": {
+    "@netlify/blobs": "^10.7.2",
     "@netlify/vite-plugin": "^2.11.0",
     "@tailwindcss/vite": "^4.1.17",
     "openai": "^4.104.0"

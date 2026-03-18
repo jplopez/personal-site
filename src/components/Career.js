@@ -2,6 +2,7 @@ import { getCurrentLanguage, i18n } from "../i18n"
 import { achievements, achievements_es } from "./career/achievements.js"
 import { highlights, highlights_es } from "./career/highlights.js"
 import { askAI, renderAIResponse } from "../ai.js"
+import { buildCareerPrompt } from "../prompts.js"
 
 export function Career() {
   const careers = getCareersList();
@@ -15,13 +16,10 @@ export function Career() {
       <div class="career-highlights">
         ${getHighlightsList().map((h, i) => HighlightCard(h, i)).join('')}
       </div>
-      <div id="highlights-ai-panel" class="ai-section-panel hidden"></div>
-
       <h3 class="mt-12">${i18n('career-timeline-title')}</h3>
       <div class="career-timeline">
         ${careers.map((career, i) => CareerEntry(career, i)).join('')}
       </div>
-      <div id="timeline-ai-panel" class="ai-section-panel hidden"></div>
     </section>
   `
 }
@@ -66,20 +64,24 @@ function AchievementCard(achievement, index) {
   switch (achievement.type) {
     case 'stat':
       return `
-        <div class="achievement-card achievement-stat achievement-card--clickable"
-          style="transition-delay: ${delay}ms"
-          data-ai-title="${escAttr(achievement.value + ' ' + achievement.label)}"
-          data-ai-body="">
+        <div class="achievement-card achievement-stat"
+          style="transition-delay: ${delay}ms">
           <span class="achievement-value">${achievement.value}</span>
           <span class="achievement-label">${achievement.label}</span>
+          <button class="ai-card-ask-btn"
+            data-ai-title="${escAttr(achievement.value + ' ' + achievement.label)}"
+            data-ai-body="">${i18n('ai-card-ask')}</button>
+          <div class="ai-card-panel hidden"></div>
         </div>`;
     case 'badge':
       return `
-        <div class="achievement-card achievement-badge achievement-card--clickable"
-          style="transition-delay: ${delay}ms"
-          data-ai-title="${escAttr(achievement.text)}"
-          data-ai-body="">
+        <div class="achievement-card achievement-badge"
+          style="transition-delay: ${delay}ms">
           ${achievement.text}
+          <button class="ai-card-ask-btn"
+            data-ai-title="${escAttr(achievement.text)}"
+            data-ai-body="">${i18n('ai-card-ask')}</button>
+          <div class="ai-card-panel hidden"></div>
         </div>`;
     case 'link':
       return `
@@ -88,12 +90,14 @@ function AchievementCard(achievement, index) {
         </a>`;
     default: // text
       return `
-        <div class="achievement-card achievement-text achievement-card--clickable"
-          style="transition-delay: ${delay}ms"
-          data-ai-title="${escAttr(achievement.title)}"
-          data-ai-body="${escAttr(achievement.body)}">
+        <div class="achievement-card achievement-text"
+          style="transition-delay: ${delay}ms">
           <p class="achievement-title">${achievement.title}</p>
           <p class="achievement-body">${achievement.body}</p>
+          <button class="ai-card-ask-btn"
+            data-ai-title="${escAttr(achievement.title)}"
+            data-ai-body="${escAttr(achievement.body)}">${i18n('ai-card-ask')}</button>
+          <div class="ai-card-panel hidden"></div>
         </div>`;
   }
 }
@@ -118,37 +122,21 @@ export function initializeCareer() {
   revealOnScroll('.highlight-item');
 
   // AI click handlers for achievement cards
-  document.querySelectorAll('.achievement-card--clickable').forEach(el => {
-    el.addEventListener('click', () => onAchievementClick(el));
+  document.querySelectorAll('.ai-card-ask-btn').forEach(btn => {
+    btn.addEventListener('click', () => onAchievementClick(btn));
   });
 }
 
-async function onAchievementClick(card) {
-  const title = card.dataset.aiTitle;
-  const body  = card.dataset.aiBody || '';
+async function onAchievementClick(btn) {
+  const title = btn.dataset.aiTitle;
+  const body  = btn.dataset.aiBody || '';
   if (!title) return;
 
-  const isHighlight = !!card.closest('.career-highlights');
-  const panelId = isHighlight ? 'highlights-ai-panel' : 'timeline-ai-panel';
-  const panel = document.getElementById(panelId);
+  const panel = btn.nextElementSibling; // .ai-card-panel sibling
   if (!panel) return;
 
-  // Toggle: clicking the active card collapses the panel
-  if (panel.dataset.activeCard === title && !panel.classList.contains('hidden')) {
-    panel.classList.add('hidden');
-    panel.dataset.activeCard = '';
-    card.classList.remove('achievement-card--active');
-    return;
-  }
-
-  // Deactivate previous card in this section
-  const sectionEl = isHighlight
-    ? document.querySelector('.career-highlights')
-    : document.querySelector('.career-timeline');
-  sectionEl?.querySelectorAll('.achievement-card--active').forEach(el => el.classList.remove('achievement-card--active'));
-
-  card.classList.add('achievement-card--active');
-  panel.dataset.activeCard = title;
+  // Disable the button while loading, restore on error
+  btn.disabled = true;
 
   panel.classList.remove('hidden');
   panel.innerHTML = `
@@ -160,19 +148,14 @@ async function onAchievementClick(card) {
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   const lang = getCurrentLanguage();
-  const bodySuffix = body ? `. ${body}` : '';
-  const prompt = lang === 'es'
-    ? `Cuéntame más sobre: "${title}"${bodySuffix}`
-    : `Tell me more about Juan Pablo's "${title}"${bodySuffix}`;
+  const { prompt, template } = await buildCareerPrompt(title, body, lang);
 
   try {
     const text = await askAI(prompt);
-    panel.innerHTML = `
-      <h4 class="ai-panel-heading">${i18n('ai-career-heading')}: <em>${title}</em></h4>
-      <div class="ai-panel-content">${renderAIResponse(text)}</div>
-    `;
+    panel.innerHTML = `<div class="ai-panel-content">${renderAIResponse(text, 'career', template)}</div>`;
   } catch {
     panel.innerHTML = `<p class="ai-panel-error">${i18n('ai-error')}</p>`;
+    btn.disabled = false;
   }
 }
 

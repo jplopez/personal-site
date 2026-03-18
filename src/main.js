@@ -10,10 +10,14 @@ import { Contact, initializeContact } from "./components/Contact.js"
 import { Footer } from "./components/Footer.js"
 import { initializeSkills } from "./components/Skills.js"
 import { JobFit, initializeJobFit } from "./components/JobFit.js"
+import { prefetchPromptTemplates } from "./prompts.js"
 
 
 // Initialize i18n
 await initLanguage()
+
+// Pre-warm template cache so it's ready before first AI interaction
+prefetchPromptTemplates()
 
 // Home page component
 function HomePage() {

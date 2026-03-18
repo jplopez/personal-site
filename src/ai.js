@@ -1,5 +1,6 @@
 import { getCurrentLanguage } from './i18n.js';
 import { config } from './config.js'
+import { AIResponseProcessor } from './ai-response-processor.js'
 /**
  * Sends a prompt to the AI serverless function and returns the response text.
  * @param {string} userPrompt
@@ -25,41 +26,42 @@ export async function askAI(userPrompt) {
 }
 
 /**
+ * Per-use-case rendering configuration.
+ * Edit the CSS class names here to style AI output differently for each feature.
+ * Each key corresponds to the `type` argument passed to renderAIResponse().
+ */
+const RENDER_CONFIG = {
+  skill: {
+    paragraphClass: 'ai-response-paragraph',
+    headingClass:   'ai-response-heading',
+    listClass:      'ai-response-list',
+  },
+  career: {
+    paragraphClass: 'ai-response-paragraph',
+    headingClass:   'ai-response-heading',
+    listClass:      'ai-response-list',
+  },
+  jobfit: {
+    paragraphClass: 'ai-response-paragraph ai-response-paragraph--jobfit',
+    headingClass:   'ai-response-heading ai-response-heading--jobfit',
+    listClass:      'ai-response-list ai-response-list--jobfit',
+  },
+  default: {
+    paragraphClass: 'ai-response-paragraph',
+    headingClass:   'ai-response-heading',
+    listClass:      'ai-response-list',
+  },
+};
+
+/**
  * Converts a plain-text AI response (with optional markdown) to safe HTML.
- * Supports: **bold**, # headings, and bullet/numbered lists.
- * @param {string} text
+ * Delegates formatting to AIResponseProcessor.
+ * @param {string}      text      Raw markdown text from the AI
+ * @param {'skill'|'career'|'jobfit'|'default'} [type='default']
+ * @param {string|null} [template=null]  The markdown template used in the prompt
  * @returns {string}
  */
-export function renderAIResponse(text) {
-  return text
-    .split('\n\n')
-    .map(block => {
-      block = block.trim();
-      if (!block) return '';
-
-      // Bold
-      block = block.replaceAll(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-      // Heading
-      const headingMatch = /^#{1,3}\s+(.+)/.exec(block);
-      if (headingMatch) {
-        return `<h4 class="ai-response-heading">${headingMatch[1]}</h4>`;
-      }
-
-      // List (bullet or numbered)
-      const lines = block.split('\n');
-      const isList = lines.every(l => /^(?:[-\u2022*]|\d+\.)\s/.test(l.trim()) || l.trim() === '');
-
-      if (isList) {
-        const items = lines
-          .map(l => l.trim().replace(/^(?:[-\u2022*]|\d+\.)\s+/, ''))
-          .filter(Boolean)
-          .map(l => `<li>${l}</li>`)
-          .join('');
-        return `<ul class="ai-response-list">${items}</ul>`;
-      }
-
-      return `<p>${block.replaceAll('\n', '<br>')}</p>`;
-    })
-    .join('');
+export function renderAIResponse(text, type = 'default', template = null) {
+  const cfg = RENDER_CONFIG[type] ?? RENDER_CONFIG.default;
+  return AIResponseProcessor.process(text, template, cfg);
 }

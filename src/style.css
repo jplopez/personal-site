@@ -301,12 +301,19 @@ body {
   .ai-panel-content p { @apply text-zinc-700 dark:text-zinc-300; }
   .ai-panel-content strong { @apply font-semibold text-zinc-800 dark:text-zinc-200; }
 
+  /* ── Per-type response elements (edit these to restyle per use-case) ── */
+
+  .ai-response-paragraph {
+    @apply text-zinc-700 dark:text-zinc-300;
+  }
   .ai-response-heading {
     @apply mt-4 mb-1 text-sm font-semibold tracking-wide text-teal-600 uppercase dark:text-teal-400;
   }
   .ai-response-list {
     @apply pl-5 space-y-1 list-disc text-zinc-700 dark:text-zinc-300;
   }
+
+  /* Job Fit overrides — add .ai-response-paragraph--jobfit / heading / list rules here */
 
   .ai-panel-loading {
     @apply flex items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400;
@@ -331,6 +338,19 @@ body {
   .skill-tag--selected::after {
     content: '';
     @apply absolute bottom-0 left-0 right-0 h-0.5 bg-teal-500 dark:bg-teal-400 rounded-full;
+  }
+
+  /* ─── Achievement card AI ask button & inline panel ────────────── */
+
+  .ai-card-ask-btn {
+    @apply mt-3 block text-xs text-teal-600 dark:text-teal-400 hover:underline
+           cursor-pointer bg-transparent border-none p-0 text-left
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:no-underline;
+  }
+
+  .ai-card-panel {
+    @apply mt-3 pt-3 text-sm border-t border-teal-200/60 dark:border-teal-800/60;
+    animation: ai-panel-in 0.25s ease;
   }
 
   /* ─── Achievement card interactive state ────────────────────────── */

@@ -4,6 +4,7 @@
  * Deployed at: /.netlify/functions/ai-chat
  */
 import OpenAI from 'openai';
+import { getStore } from '@netlify/blobs';
 
 const SYSTEM_PROMPT_EN = `You are an AI assistant embedded in Juan Pablo Lopez's personal portfolio website. \
 Your role is to help visitors understand Juan Pablo's professional background, skills, achievements, and experience.
@@ -143,12 +144,84 @@ function corsHeaders(origin) {
   };
 }
 
+// Rate limiting via Netlify Blobs.
+// Tune these via env vars in Netlify UI (Site Settings → Environment variables).
+const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX ?? '10');              // per IP per window
+const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS ?? String(60 * 60 * 1000)); // 1 hour
+const DAILY_CAP = parseInt(process.env.DAILY_CAP ?? '100');                       // total requests per day
+
+function secondsUntilMidnightUTC() {
+  const now = new Date();
+  const midnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+  return Math.ceil((midnight - now) / 1000);
+}
+
+/**
+ * Returns { allowed: true } or { allowed: false, retryAfter: <seconds> }.
+ * Uses two Blobs keys: a daily global counter and a per-IP sliding-window counter.
+ */
+async function checkRateLimit(request) {
+  try {
+    const store = getStore('ai-chat-rate-limit');
+    const now = Date.now();
+
+    // 1. Global daily cap
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const dailyRaw = await store.get(`daily:${today}`);
+    const dailyCount = dailyRaw ? parseInt(dailyRaw) : 0;
+    if (dailyCount >= DAILY_CAP) {
+      return { allowed: false, retryAfter: secondsUntilMidnightUTC() };
+    }
+
+    // 2. Per-IP sliding window
+    const rawIp =
+      request.headers.get('x-nf-client-connection-ip') ??
+      request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+      'unknown';
+    // Sanitize: only allow characters valid in a Blobs key
+    const ip = rawIp.replace(/[^a-zA-Z0-9.:_-]/g, '');
+    const ipKey = `ip:${ip}`;
+    const ipRaw = await store.get(ipKey);
+    const ipData = ipRaw ? JSON.parse(ipRaw) : { count: 0, windowStart: now };
+
+    if (now - ipData.windowStart > RATE_LIMIT_WINDOW_MS) {
+      ipData.count = 0;
+      ipData.windowStart = now;
+    }
+
+    if (ipData.count >= RATE_LIMIT_MAX) {
+      const retryAfter = Math.ceil((ipData.windowStart + RATE_LIMIT_WINDOW_MS - now) / 1000);
+      return { allowed: false, retryAfter };
+    }
+
+    // Increment both counters (fire-and-forget — don't block the response)
+    Promise.all([
+      store.set(`daily:${today}`, String(dailyCount + 1)),
+      store.set(ipKey, JSON.stringify({ count: ipData.count + 1, windowStart: ipData.windowStart })),
+    ]).catch((e) => console.error('[ai-chat] Blobs write error:', e));
+
+    return { allowed: true };
+  } catch (e) {
+    // If Blobs is unavailable (e.g. local dev without netlify dev), fail open
+    console.warn('[ai-chat] Rate limit check failed, allowing request:', e.message);
+    return { allowed: true };
+  }
+}
+
 export default async (request) => {
   const origin = request.headers.get('origin') ?? '';
   const allowedOrigins = getAllowedOrigins();
 
   if (!allowedOrigins.has(origin)) {
     return new Response('Forbidden', { status: 403 });
+  }
+
+  const rateLimit = await checkRateLimit(request);
+  if (!rateLimit.allowed) {
+    return new Response('Too Many Requests', {
+      status: 429,
+      headers: { ...corsHeaders(origin), 'Retry-After': String(rateLimit.retryAfter) },
+    });
   }
 
   // Handle CORS preflight

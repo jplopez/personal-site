@@ -1,5 +1,6 @@
 import { i18n, getCurrentLanguage } from '../i18n.js'
 import { askAI, renderAIResponse } from '../ai.js'
+import { buildSkillPrompt } from '../prompts.js'
 
 export function Skills() {
   const skills = getSkillsList();
@@ -67,15 +68,13 @@ async function onSkillClick(skillIndex) {
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   const lang = getCurrentLanguage();
-  const prompt = lang === 'es'
-    ? `Cuéntame sobre una ocasión en la que Juan Pablo demostró la habilidad de: ${skill}`
-    : `Tell me about a time where Juan Pablo demonstrated the skill: ${skill}`;
+  const { prompt, template } = await buildSkillPrompt(skill, lang);
 
   try {
     const text = await askAI(prompt);
     panel.innerHTML = `
       <h4 class="ai-panel-heading">${i18n('ai-skill-heading')}: <em>${skill}</em></h4>
-      <div class="ai-panel-content">${renderAIResponse(text)}</div>
+      <div class="ai-panel-content">${renderAIResponse(text, 'skill', template)}</div>
     `;
   } catch {
     panel.innerHTML = `<p class="ai-panel-error">${i18n('ai-error')}</p>`;

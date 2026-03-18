@@ -1,5 +1,6 @@
 import { i18n, importComponent, getCurrentLanguage } from '../i18n.js'
 import { askAI, renderAIResponse } from '../ai.js'
+import { buildJobFitPrompt } from '../prompts.js'
 
 // Localized intro for about section
 const JobFitText = await importComponent('./components/jobfit/content')
@@ -87,9 +88,7 @@ async function runJobFitAnalysis({ submitBtn, input, result, indicator, response
   result.classList.add('hidden')
 
   const lang = getCurrentLanguage()
-  const prompt = lang === 'es'
-    ? `Por favor analiza la compatibilidad entre el perfil de Juan Pablo Lopez y la siguiente descripci\u00f3n de trabajo:\n\n${jobDescription}`
-    : `Please analyze the fit between Juan Pablo Lopez's profile and the following job description:\n\n${jobDescription}`
+  const { prompt, template } = await buildJobFitPrompt(jobDescription, lang)
 
   try {
     const text = await askAI(prompt)
@@ -110,7 +109,7 @@ async function runJobFitAnalysis({ submitBtn, input, result, indicator, response
 
     indicator.className = `jobfit-indicator jobfit-indicator--${fitLevel}`
     indicator.textContent = fitLabel
-    responseEl.innerHTML = renderAIResponse(bodyText)
+    responseEl.innerHTML = renderAIResponse(bodyText, 'jobfit', template)
     result.classList.remove('hidden')
     result.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   } catch {
