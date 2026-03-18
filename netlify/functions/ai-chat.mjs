@@ -123,7 +123,11 @@ Banco de Chile / El Mercurio / I2B (2009–2015) – Lead Developer
 - Lead Developer en empresas chilenas de banca (Banco de Chile), medios (El Mercurio) y tecnología (I2B)
 `;
 
-// v2 Netlify Function — uses standard Web Request/Response APIs.
+// Server-side prompt length limit.
+// JOBFIT_MAX_CHARS: user-visible textarea cap (set in .env.local / Netlify env vars).
+// The 500-char overhead budget covers the question prefix + the largest prompt template.
+const JOBFIT_MAX_CHARS = Number.parseInt(process.env.JOBFIT_MAX_CHARS ?? '4800');
+const PROMPT_MAX_LENGTH = JOBFIT_MAX_CHARS + 500;
 // The AI Gateway injects ANTHROPIC_API_KEY + ANTHROPIC_BASE_URL into this context.
 
 /**
@@ -146,9 +150,9 @@ function corsHeaders(origin) {
 
 // Rate limiting via Netlify Blobs.
 // Tune these via env vars in Netlify UI (Site Settings → Environment variables).
-const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX ?? '10');              // per IP per window
-const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS ?? String(60 * 60 * 1000)); // 1 hour
-const DAILY_CAP = parseInt(process.env.DAILY_CAP ?? '100');                       // total requests per day
+const RATE_LIMIT_MAX = Number.parseInt(process.env.RATE_LIMIT_MAX ?? '10');              // per IP per window
+const RATE_LIMIT_WINDOW_MS = Number.parseInt(process.env.RATE_LIMIT_WINDOW_MS ?? String(60 * 60 * 1000)); // 1 hour
+const DAILY_CAP = Number.parseInt(process.env.DAILY_CAP ?? '100');                       // total requests per day
 
 function secondsUntilMidnightUTC() {
   const now = new Date();
@@ -168,7 +172,7 @@ async function checkRateLimit(request) {
     // 1. Global daily cap
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     const dailyRaw = await store.get(`daily:${today}`);
-    const dailyCount = dailyRaw ? parseInt(dailyRaw) : 0;
+    const dailyCount = dailyRaw ? Number.parseInt(dailyRaw) : 0;
     if (dailyCount >= DAILY_CAP) {
       return { allowed: false, retryAfter: secondsUntilMidnightUTC() };
     }
@@ -179,7 +183,7 @@ async function checkRateLimit(request) {
       request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
       'unknown';
     // Sanitize: only allow characters valid in a Blobs key
-    const ip = rawIp.replace(/[^a-zA-Z0-9.:_-]/g, '');
+    const ip = rawIp.replaceAll(/[^a-zA-Z0-9.:_-]/g, '');
     const ipKey = `ip:${ip}`;
     const ipRaw = await store.get(ipKey);
     const ipData = ipRaw ? JSON.parse(ipRaw) : { count: 0, windowStart: now };
@@ -240,7 +244,7 @@ export default async (request) => {
     return Response.json({ error: 'Invalid request body' }, { status: 400, headers: corsHeaders(origin) });
   }
 
-  if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0 || prompt.length > 5000) {
+  if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0 || prompt.length > PROMPT_MAX_LENGTH) {
     return Response.json({ error: 'Invalid prompt' }, { status: 400, headers: corsHeaders(origin) });
   }
 

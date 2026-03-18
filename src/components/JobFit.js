@@ -80,8 +80,6 @@ export function initializeJobFit() {
 async function runJobFitAnalysis({ submitBtn, input, result, indicator, responseEl }) {
  const jobDescription = input.value.trim().slice(0, MAX_CHARS)  // truncate here
   if (!jobDescription) return
-  // const jobDescription = input.value.trim()
-  // if (!jobDescription) return
 
   submitBtn.disabled = true
   submitBtn.textContent = i18n('jobfit-analyzing')
@@ -89,10 +87,10 @@ async function runJobFitAnalysis({ submitBtn, input, result, indicator, response
 
   const lang = getCurrentLanguage()
   const { prompt, template } = await buildJobFitPrompt(jobDescription, lang)
-
+  //console.log("runJobFitAnalysis - prompt built")
   try {
     const text = await askAI(prompt)
-
+    //console.log("runJobFitAnalysis - received AI response")
     // Parse fit level from first line
     const firstLine = text.split('\n')[0].trim()
     let fitLevel = 'medium'
@@ -106,12 +104,14 @@ async function runJobFitAnalysis({ submitBtn, input, result, indicator, response
     }
 
     const bodyText = text.replace(/^FIT:\s*(HIGH|MEDIUM|LOW)[^\n]*\n?/i, '').trim()
-
+    
     indicator.className = `jobfit-indicator jobfit-indicator--${fitLevel}`
     indicator.textContent = fitLabel
     responseEl.innerHTML = renderAIResponse(bodyText, 'jobfit', template)
     result.classList.remove('hidden')
     result.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    
+    //console.log("runJobFitAnalysis - AI response parsed to HTML")
   } catch {
     indicator.className = 'jobfit-indicator jobfit-indicator--error'
     indicator.textContent = ''

@@ -7,7 +7,12 @@ import { AIResponseProcessor } from './ai-response-processor.js'
  * @returns {Promise<string>}
  */
 export async function askAI(userPrompt) {
+  //console.log("askAI - Start")
   let path = config['api']['aipath'] ;
+
+  console.log("askAI - path: " + path)
+  console.log("askAI - userPrompt (" + userPrompt.length + " chars) :")
+  // console.log(userPrompt)
   const response = await fetch(path, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -16,12 +21,15 @@ export async function askAI(userPrompt) {
       language: getCurrentLanguage(),
     }),
   });
+  //console.log("askAI - Received response")
 
   if (!response.ok) {
     throw new Error(`AI request failed: ${response.status}`);
   }
 
   const data = await response.json();
+  //console.log("askAI - returning")
+
   return data.text;
 }
 
