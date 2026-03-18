@@ -33,14 +33,18 @@ export function JobFit() {
           ${i18n('jobfit-submit')}
         </button>
       </div>
-      ...
+
+      <div id="jobfit-result" class="jobfit-result hidden">
+        <div id="jobfit-indicator" class="jobfit-indicator"></div>
+        <div id="jobfit-response" class="jobfit-response ai-panel-content"></div>
+      </div>
     </section>
   `
 }
 
 
 export function initializeJobFit() {
-    const submitBtn  = document.getElementById('jobfit-submit')
+  const submitBtn  = document.getElementById('jobfit-submit')
   const input      = document.getElementById('jobfit-input')
   const result     = document.getElementById('jobfit-result')
   const indicator  = document.getElementById('jobfit-indicator')
@@ -73,8 +77,10 @@ export function initializeJobFit() {
 }
 
 async function runJobFitAnalysis({ submitBtn, input, result, indicator, responseEl }) {
-  const jobDescription = input.value.trim()
+ const jobDescription = input.value.trim().slice(0, MAX_CHARS)  // truncate here
   if (!jobDescription) return
+  // const jobDescription = input.value.trim()
+  // if (!jobDescription) return
 
   submitBtn.disabled = true
   submitBtn.textContent = i18n('jobfit-analyzing')
