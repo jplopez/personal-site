@@ -124,20 +124,51 @@ Banco de Chile / El Mercurio / I2B (2009–2015) – Lead Developer
 
 // v2 Netlify Function — uses standard Web Request/Response APIs.
 // The AI Gateway injects ANTHROPIC_API_KEY + ANTHROPIC_BASE_URL into this context.
+
+/**
+ * Reads the ALLOWED_ORIGINS env var (comma-separated URLs) into a Set.
+ * Set this in Netlify UI (per-context) and in a local .env file for dev.
+ * Example: "https://jplopez.netlify.app,http://localhost:8888"
+ */
+function getAllowedOrigins() {
+  const raw = process.env.ALLOWED_ORIGINS ?? '';
+  return new Set(raw.split(',').map((o) => o.trim()).filter(Boolean));
+}
+
+function corsHeaders(origin) {
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
+
 export default async (request) => {
+  const origin = request.headers.get('origin') ?? '';
+  const allowedOrigins = getAllowedOrigins();
+
+  if (!allowedOrigins.has(origin)) {
+    return new Response('Forbidden', { status: 403 });
+  }
+
+  // Handle CORS preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  }
+
   if (request.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405 });
+    return new Response('Method Not Allowed', { status: 405, headers: corsHeaders(origin) });
   }
 
   let prompt, language;
   try {
     ({ prompt, language } = await request.json());
   } catch {
-    return Response.json({ error: 'Invalid request body' }, { status: 400 });
+    return Response.json({ error: 'Invalid request body' }, { status: 400, headers: corsHeaders(origin) });
   }
 
   if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0 || prompt.length > 5000) {
-    return Response.json({ error: 'Invalid prompt' }, { status: 400 });
+    return Response.json({ error: 'Invalid prompt' }, { status: 400, headers: corsHeaders(origin) });
   }
 
   const systemPrompt = language === 'es' ? SYSTEM_PROMPT_ES : SYSTEM_PROMPT_EN;
@@ -157,11 +188,11 @@ export default async (request) => {
     });
     const text = completion.choices?.[0]?.message?.content ?? '';
 
-    return Response.json({ text });
+    return Response.json({ text }, { headers: corsHeaders(origin) });
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
     console.error('[ai-chat] OpenAI SDK error:', error);
-    return Response.json({ error }, { status: 502 });
+    return Response.json({ error }, { status: 502, headers: corsHeaders(origin) });
   }
 };
 
