@@ -1,5 +1,4 @@
 import { i18n, getCurrentLanguage, setLanguage } from '../i18n.js'
-import { config } from '../config.js'
 
 export function Navigation() {
   /* html */
@@ -25,34 +24,39 @@ export function Navigation() {
                 </a>
               </li>
               <li>
-                <a href="/job-fit" class="nav-link" title="${i18n('nav-jobfit-title')}">
-                  ${i18n('nav-jobfit')}
-                </a>
-              </li> `
-
-              // <li>
-              //   <a href="/portfolio" class="nav-link" title="${i18n('nav-portfolio-title')}">
-              //     ${i18n('nav-portfolio')}
-              //   </a>
-              // </li>
-              + 
-              /* html */
-              `
-              <li>
                 <a href="/contact" class="nav-link" title="${i18n('nav-contact-title')}">
                   ${i18n('nav-contact')}
                 </a>
               </li>
               <li class="my-2 mx-1 md:mx-2 border"> </li>
               <li>
-                <a href="/downloads/${config['resume']['filename']}" download 
-                    class="nav-link text-accent" title="${i18n('dl-resume-title')}">
-                      ${i18n('nav-downloadResume')}
-                  <svg class="inline-block w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                  </svg>
+                <a href="/job-fit" class="nav-link text-secondary" title="${i18n('nav-jobfit-title')}">
+                  ${i18n('nav-jobfit')}
                 </a>
-              </li>
+              </li> 
+              `
+
+              // Commenting 'portfolio' in favor of career section and AI chat
+              // <li>
+              //   <a href="/portfolio" class="nav-link" title="${i18n('nav-portfolio-title')}">
+              //     ${i18n('nav-portfolio')}
+              //   </a>
+              // </li>
+
+              // Commenting 'download resume' in favor of job fit 
+              // <li class="my-2 mx-1 md:mx-2 border"> </li>
+              // <li>
+              //   <a href="/downloads/${config['resume']['filename']}" download 
+              //       class="nav-link text-accent" title="${i18n('dl-resume-title')}">
+              //         ${i18n('nav-downloadResume')}
+              //     <svg class="inline-block w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              //       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+              //     </svg>
+              //   </a>
+              // </li>
+              
+    /* html */
+    + `
             </ul>
           </nav>
 

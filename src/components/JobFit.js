@@ -1,12 +1,16 @@
-import { i18n, getCurrentLanguage } from '../i18n.js'
+import { i18n, importComponent, getCurrentLanguage } from '../i18n.js'
 import { askAI, renderAIResponse } from '../ai.js'
+
+// Localized intro for about section
+const JobFitText = await importComponent('./components/jobfit/content')
+
 
 export function JobFit() {
   /* html */
   return `
     <section id="jobfit">
       <h2>${i18n('jobfit-title')}</h2>
-      <p class="style-paragraph text-center max-w-prose mx-auto mt-2">${i18n('jobfit-subtitle')}</p>
+      <div class="style-paragraph max-w-prose mx-auto mt-2"> ${JobFitText()} </div>
 
       <div class="jobfit-form">
         <textarea

@@ -148,7 +148,8 @@ export default async (request) => {
 
   try {
     // new Anthropic() reads ANTHROPIC_API_KEY and ANTHROPIC_BASE_URL automatically.
-    // Both are injected by Netlify AI Gateway — no manual key management needed.
+    // Both are injected by Netlify AI Gateway (production) and the Netlify Vite plugin (local dev).
+    // Run locally with `npm run dev` — the Vite plugin handles gateway routing correctly.
     const anthropic = new Anthropic();
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -161,6 +162,7 @@ export default async (request) => {
     return Response.json({ text });
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
+    console.error('[ai-chat] Anthropic SDK error:', error);
     return Response.json({ error }, { status: 502 });
   }
 };
